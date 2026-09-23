@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 from core.vector_store import LocalVectorStore
@@ -47,87 +48,91 @@ if 'active_logs_content' not in st.session_state:
 if 'parsed_logs' not in st.session_state:
     st.session_state.parsed_logs = None
 if 'indexed_docs_meta' not in st.session_state:
-    # Just to track what files have been uploaded (could be inferred from vector_store but this is easier for UI)
     st.session_state.indexed_docs_meta = []
-
-
-# --- Sidebar ---
-st.sidebar.title("⚙️ Configuration")
-api_key = st.sidebar.text_input("Hugging Face API Token", type="password")
-if api_key:
-    st.session_state.api_key = api_key
-    
-model_selector = st.sidebar.selectbox(
-    "Model Selector",
-    options=["mistralai/Mistral-7B-Instruct-v0.2", "HuggingFaceH4/zephyr-7b-beta", "meta-llama/Meta-Llama-3-8B-Instruct"]
-)
-
-st.sidebar.divider()
-
-# Knowledge Base Dock
-st.sidebar.subheader("📚 Knowledge Base (Manuals)")
-uploaded_manuals = st.sidebar.file_uploader("Upload Manuals & SOPs", type=["pdf", "txt"], accept_multiple_files=True)
-
-if st.sidebar.button("Re-index All") and uploaded_manuals:
-    with st.spinner("Extracting and Indexing..."):
-        st.session_state.vector_store.clear()
-        chunks = st.session_state.doc_loader.load_and_split(uploaded_manuals)
-        st.session_state.vector_store.add_documents(chunks)
-        
-        # Update metadata for UI
-        st.session_state.indexed_docs_meta = []
-        for file in uploaded_manuals:
-            st.session_state.indexed_docs_meta.append({"filename": file.name, "size": len(file.getvalue())})
-            
-        st.sidebar.success(f"Indexed {len(chunks)} chunks from {len(uploaded_manuals)} files.")
-
-if st.session_state.indexed_docs_meta:
-    st.sidebar.markdown(f"**🟢 Index Ready** ({len(st.session_state.indexed_docs_meta)} Documents)")
-    for doc in st.session_state.indexed_docs_meta:
-        st.sidebar.markdown(f"- {doc['filename']}")
-else:
-    st.sidebar.markdown("⚪ No manuals loaded")
-    
-if st.sidebar.button("Clear Knowledge Base"):
-    st.session_state.vector_store.clear()
-    st.session_state.indexed_docs_meta = []
-    st.sidebar.info("Knowledge Base cleared.")
-
-
-st.sidebar.divider()
-
-# Telemetry Dock
-st.sidebar.subheader("⚡ Active Telemetry / Logs")
-uploaded_log = st.sidebar.file_uploader("Upload Shift Logs / Fault Data", type=["txt", "log", "csv"])
-
-if uploaded_log:
-    if st.sidebar.button("Parse Logs"):
-        content = uploaded_log.getvalue().decode("utf-8")
-        st.session_state.active_logs_content = content
-        st.session_state.parsed_logs = st.session_state.log_parser.parse_log(content)
-        
-if st.session_state.parsed_logs:
-    errors = st.session_state.parsed_logs["counts"].get("ERROR", 0) + st.session_state.parsed_logs["counts"].get("FATAL", 0)
-    warnings = st.session_state.parsed_logs["counts"].get("WARN", 0)
-    if errors > 0:
-        st.sidebar.markdown(f"**🔴 {errors} Critical Errors Detected**")
-    elif warnings > 0:
-         st.sidebar.markdown(f"**🟡 {warnings} Warnings**")
-    else:
-         st.sidebar.markdown("**🟢 Clean Log**")
-         
-    faults = st.session_state.parsed_logs["unique_faults"]
-    if faults:
-        st.sidebar.markdown(f"**Top Faults**: {', '.join(faults)}")
-        
-if st.sidebar.button("Flush Active Log"):
-    st.session_state.active_logs_content = None
-    st.session_state.parsed_logs = None
 
 
 # --- Main Viewport ---
 st.title("🏭 Chatbot | Industrial Copilot & Equipment Diagnostics")
 
+# --- Data Ingestion Panel ---
+with st.expander("📂 Data Ingestion (Upload Manuals & Telemetry Logs)", expanded=True):
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.subheader("📚 Knowledge Base")
+        uploaded_manuals = st.file_uploader("Upload Manuals & SOPs", type=["pdf", "txt"], accept_multiple_files=True)
+        if st.button("Re-index All") and uploaded_manuals:
+            with st.spinner("Extracting and Indexing..."):
+                st.session_state.vector_store.clear()
+                chunks = st.session_state.doc_loader.load_and_split(uploaded_manuals)
+                st.session_state.vector_store.add_documents(chunks)
+                st.session_state.indexed_docs_meta = [{"filename": file.name, "size": len(file.getvalue())} for file in uploaded_manuals]
+                st.success(f"Indexed {len(chunks)} chunks from {len(uploaded_manuals)} files.")
+                
+    with col2:
+        st.subheader("⚡ Active Telemetry")
+        uploaded_log = st.file_uploader("Upload Shift Logs / Fault Data", type=["txt", "log", "csv"])
+        if uploaded_log:
+            if st.button("Parse Logs"):
+                content = uploaded_log.getvalue().decode("utf-8")
+                st.session_state.active_logs_content = content
+                st.session_state.parsed_logs = st.session_state.log_parser.parse_log(content)
+                st.success("Logs parsed successfully.")
+                
+    with col3:
+        st.subheader("🚀 Quick Start")
+        st.markdown("Don't have files? Load the built-in sample data to test the chatbot immediately.")
+        if st.button("Load Sample Data"):
+            with st.spinner("Loading sample data..."):
+                # Load sample manual
+                manual_path = "samples/sample_manual_press_line.txt"
+                if os.path.exists(manual_path):
+                    st.session_state.vector_store.clear()
+                    with open(manual_path, "r", encoding="utf-8") as f:
+                        manual_content = f.read()
+                    
+                    # Create a mock file object for doc loader
+                    class MockFile:
+                        def __init__(self, name, content):
+                            self.name = name
+                            self.content = content.encode("utf-8")
+                        def getvalue(self):
+                            return self.content
+                            
+                    mock_file = MockFile("sample_manual_press_line.txt", manual_content)
+                    chunks = st.session_state.doc_loader.load_and_split([mock_file])
+                    st.session_state.vector_store.add_documents(chunks)
+                    st.session_state.indexed_docs_meta = [{"filename": mock_file.name, "size": len(mock_file.getvalue())}]
+                
+                # Load sample logs
+                log_path = "samples/sample_shift_telemetry.log"
+                if os.path.exists(log_path):
+                    with open(log_path, "r", encoding="utf-8") as f:
+                        log_content = f.read()
+                    st.session_state.active_logs_content = log_content
+                    st.session_state.parsed_logs = st.session_state.log_parser.parse_log(log_content)
+                
+                st.success("Sample data loaded! You can now ask questions in the chat.")
+
+# --- Status Bar ---
+status_cols = st.columns(2)
+if st.session_state.indexed_docs_meta:
+    status_cols[0].markdown(f"**🟢 Knowledge Base:** {len(st.session_state.indexed_docs_meta)} Documents Indexed")
+else:
+    status_cols[0].markdown("**⚪ Knowledge Base:** Empty")
+
+if st.session_state.parsed_logs:
+    errors = st.session_state.parsed_logs["counts"].get("ERROR", 0) + st.session_state.parsed_logs["counts"].get("FATAL", 0)
+    if errors > 0:
+        status_cols[1].markdown(f"**🔴 Telemetry:** {errors} Critical Errors Detected")
+    else:
+        status_cols[1].markdown("**🟢 Telemetry:** Clean Log")
+else:
+    status_cols[1].markdown("**⚪ Telemetry:** No logs loaded")
+
+st.divider()
+
+# --- Tabs ---
 tab1, tab2, tab3 = st.tabs(["💬 Diagnostic Chat", "📊 Log Anomaly Table", "📚 Manuals Knowledge Base"])
 
 with tab1:
@@ -165,44 +170,39 @@ with tab1:
             st.markdown(query)
         st.session_state.chat_history.append(HumanMessage(content=query))
         
-        # Check API key before proceeding
-        api_key_to_use = st.session_state.get('api_key', os.environ.get("HUGGINGFACEHUB_API_TOKEN"))
-        if not api_key_to_use:
-             with st.chat_message("assistant"):
-                 st.error("Please provide a Hugging Face API Token in the sidebar or via the .env file.")
-        else:
-            with st.chat_message("assistant"):
-                with st.spinner("Processing..."):
-                    try:
-                        llm_client = get_hf_client(model_name=model_selector, hf_token=api_key_to_use)
-                        graph = build_industrial_graph(st.session_state.vector_store, st.session_state.log_parser, llm_client)
-                        
-                        initial_state = {
-                            "query": query,
-                            "chat_history": st.session_state.chat_history,
-                            "active_logs": st.session_state.active_logs_content,
-                            "has_logs": st.session_state.active_logs_content is not None,
-                            "has_manuals": len(st.session_state.indexed_docs_meta) > 0,
-                        }
-                        
-                        result_state = graph.invoke(initial_state)
-                        final_response = result_state.get("final_response", "No response generated.")
-                        sources = result_state.get("sources", [])
-                        
-                        st.markdown(final_response)
-                        
-                        # Show sources
-                        if sources:
-                            with st.expander("📖 Cited Manual Excerpts"):
-                                for source in sources:
-                                    st.markdown(f"- **{source['source']}** (Page {source['page']})")
-                                    
-                        ai_msg = AIMessage(content=final_response)
-                        ai_msg.sources = sources
-                        st.session_state.chat_history.append(ai_msg)
-                        
-                    except Exception as e:
-                        st.error(f"An error occurred: {e}")
+        with st.chat_message("assistant"):
+            with st.spinner("Processing..."):
+                try:
+                    # We no longer strictly require hf_token to be passed if we rely on the environment
+                    llm_client = get_hf_client()
+                    graph = build_industrial_graph(st.session_state.vector_store, st.session_state.log_parser, llm_client)
+                    
+                    initial_state = {
+                        "query": query,
+                        "chat_history": st.session_state.chat_history,
+                        "active_logs": st.session_state.active_logs_content,
+                        "has_logs": st.session_state.active_logs_content is not None,
+                        "has_manuals": len(st.session_state.indexed_docs_meta) > 0,
+                    }
+                    
+                    result_state = graph.invoke(initial_state)
+                    final_response = result_state.get("final_response", "No response generated.")
+                    sources = result_state.get("sources", [])
+                    
+                    st.markdown(final_response)
+                    
+                    # Show sources
+                    if sources:
+                        with st.expander("📖 Cited Manual Excerpts"):
+                            for source in sources:
+                                st.markdown(f"- **{source['source']}** (Page {source['page']})")
+                                
+                    ai_msg = AIMessage(content=final_response)
+                    ai_msg.sources = sources
+                    st.session_state.chat_history.append(ai_msg)
+                    
+                except Exception as e:
+                    st.error(f"An error occurred while communicating with the model: {e}")
 
 with tab2:
     st.subheader("Telemetry Inspector")
@@ -227,7 +227,7 @@ with tab2:
         with st.expander("Raw Log Content"):
             st.text(st.session_state.active_logs_content)
     else:
-        st.info("Upload and parse logs in the sidebar to view telemetry.")
+        st.info("Upload and parse logs in the Data Ingestion panel to view telemetry.")
 
 with tab3:
     st.subheader("Indexed Documents")
@@ -243,4 +243,4 @@ with tab3:
                 st.markdown(f"**Source**: {res.metadata.get('source_file')} (Page {res.metadata.get('page')})")
                 st.text(res.page_content)
     else:
-         st.info("Upload manuals in the sidebar to populate the Knowledge Base.")
+         st.info("Upload manuals in the Data Ingestion panel to populate the Knowledge Base.")

@@ -14,11 +14,10 @@ def get_hf_client(model_name: str = "mistralai/Mistral-7B-Instruct-v0.2", hf_tok
     if not hf_token:
         hf_token = os.environ.get("HUGGINGFACEHUB_API_TOKEN")
         
-    if not hf_token:
-        raise ValueError("Hugging Face API Token not found. Please set HUGGINGFACEHUB_API_TOKEN environment variable or pass it directly.")
-        
-    # Set the token for transformers
-    os.environ["HF_TOKEN"] = hf_token
+    if hf_token:
+        os.environ["HF_TOKEN"] = hf_token
+    else:
+        print("Warning: Hugging Face API Token not found. This is fine for public models like Mistral, but gated models like Llama will fail to download.")
     
     try:
         from transformers import BitsAndBytesConfig
