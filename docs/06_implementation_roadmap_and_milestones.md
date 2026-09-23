@@ -1,12 +1,12 @@
 # Implementation Roadmap & Setup Guide
-## Project: RoboAI - Industrial Operations & Fault Troubleshooting Assistant
+## Project: Chatbot - Industrial Operations & Fault Troubleshooting Assistant
 
 ---
 
 ## 1. Project Directory Structure
 
 ```text
-roboai/
+chatbot/
 │
 ├── docs/                                  # Architectural & Product Specifications
 │   ├── README.md                          # Master documentation index

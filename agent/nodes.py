@@ -98,7 +98,7 @@ def analyze_logs_node(state: IndustrialAgentState, vector_store, log_parser) -> 
 
 def synthesize_response_node(state: IndustrialAgentState, llm_client) -> IndustrialAgentState:
     """
-    Assemble the final grounded response using OpenRouter.
+    Assemble the final grounded response using Hugging Face models.
     """
     query = state.get("query", "")
     log_summary = state.get("log_summary", "No logs provided.")
@@ -106,7 +106,7 @@ def synthesize_response_node(state: IndustrialAgentState, llm_client) -> Industr
     
     manual_chunks_text = "\n\n---\n\n".join(manual_chunks_raw) if manual_chunks_raw else "No manuals indexed."
     
-    prompt = f"""You are RoboAI, an expert Industrial Diagnostics Assistant.
+    prompt = f"""You are Chatbot, an expert Industrial Diagnostics Assistant.
 Answer the user's query strictly based on the provided context.
 
 CRITICAL SAFETY DIRECTIVE:
@@ -141,6 +141,6 @@ STRUCTURE YOUR RESPONSE AS FOLLOWS:
         response = llm_client.invoke(messages)
         final_answer = response.content
     except Exception as e:
-         final_answer = f"⚠️ Error communicating with OpenRouter API: {str(e)}\nPlease check your API key and connection."
+         final_answer = f"⚠️ Error communicating with Hugging Face API: {str(e)}\nPlease check your API key and connection."
 
     return {"final_response": final_answer}

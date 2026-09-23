@@ -1,5 +1,5 @@
 # LangGraph Workflow Design
-## Project: RoboAI - Industrial Operations & Fault Troubleshooting Assistant
+## Project: Chatbot - Industrial Operations & Fault Troubleshooting Assistant
 
 ---
 
@@ -106,7 +106,7 @@ graph TD
 - **Purpose**: Assemble the final grounded response using OpenRouter.
 - **Prompt Structure**:
   ```markdown
-  You are RoboAI, an expert Industrial Diagnostics Assistant.
+  You are Chatbot, an expert Industrial Diagnostics Assistant.
   Answer the user's query strictly based on the provided context.
   
   [CURRENT OPERATING LOGS]

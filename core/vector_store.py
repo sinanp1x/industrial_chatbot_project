@@ -10,7 +10,7 @@ class LocalVectorStore:
     def __init__(self, storage_dir: str = "./storage/faiss_index"):
         self.storage_dir = storage_dir
         self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-        self.index_name = "roboai_index"
+        self.index_name = "chatbot_index"
         self.store = None
         
         # Ensure storage directory exists

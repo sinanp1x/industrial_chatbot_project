@@ -1,5 +1,5 @@
 # UI/UX Interface Specification
-## Project: RoboAI - Industrial Operations & Fault Troubleshooting Assistant
+## Project: Chatbot - Industrial Operations & Fault Troubleshooting Assistant
 
 ---
 
@@ -19,7 +19,7 @@ Industrial applications require high clarity, immediate information hierarchy, a
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ 🏭 RoboAI | Industrial Copilot & Equipment Diagnostics                 [Model: Claude 3.5 Sonnet] [Status: ● Ready] │
+│ 🏭 Chatbot | Industrial Copilot & Equipment Diagnostics                 [Model: Claude 3.5 Sonnet] [Status: ● Ready] │
 ├───────────────────────────────┬─────────────────────────────────────────────────────────────────────────────┤
 │ SIDEBAR DOCK                  │ MAIN VIEWPORT TABS                                                          │
 │                               │ ┌──────────────────────┬──────────────────────┬──────────────────────────┐  │

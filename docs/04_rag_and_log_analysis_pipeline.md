@@ -1,5 +1,5 @@
 # RAG & Telemetry Log Pipeline Specification
-## Project: RoboAI - Industrial Operations & Fault Troubleshooting Assistant
+## Project: Chatbot - Industrial Operations & Fault Troubleshooting Assistant
 
 ---
 
@@ -108,7 +108,7 @@ When a user asks: *"Why did the press stop and what do we do?"*, the pipeline ex
 
 ```python
 INDUSTRIAL_DIAGNOSTIC_PROMPT = """
-You are RoboAI, an industrial maintenance and operations engineering assistant.
+You are Chatbot, an industrial maintenance and operations engineering assistant.
 Analyze the following machine telemetry and reference manuals to answer the operator's query.
 
 CRITICAL SAFETY DIRECTIVE:

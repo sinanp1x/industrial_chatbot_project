@@ -1,11 +1,11 @@
 # System Architecture & Tech Stack
-## Project: RoboAI - Industrial Operations & Fault Troubleshooting Assistant
+## Project: Chatbot - Industrial Operations & Fault Troubleshooting Assistant
 
 ---
 
 ## 1. Architectural Topology
 
-RoboAI follows a clean, modular multi-tier architecture designed for local execution and high-performance inference via OpenRouter.
+Chatbot follows a clean, modular multi-tier architecture designed for local execution and high-performance inference via OpenRouter.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐

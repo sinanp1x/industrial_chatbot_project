@@ -1,14 +1,14 @@
 # Product Requirements Document (PRD)
-## Project: RoboAI - Industrial Operations & Fault Troubleshooting Assistant
+## Project: Chatbot - Industrial Operations & Fault Troubleshooting Assistant
 
 ---
 
 ## 1. Executive Overview
 
 ### 1.1 Product Vision
-RoboAI is an intelligent, domain-grounded industrial copilot designed for manufacturing plants, automation facilities, and equipment maintenance teams. It fuses **static engineering documentation** (PDF technical manuals, Standard Operating Procedures, schematic guides) with **real-time operational telemetry** (text-based machine logs, PLC fault dumps, sensor alarm streams).
+Chatbot is an intelligent, domain-grounded industrial copilot designed for manufacturing plants, automation facilities, and equipment maintenance teams. It fuses **static engineering documentation** (PDF technical manuals, Standard Operating Procedures, schematic guides) with **real-time operational telemetry** (text-based machine logs, PLC fault dumps, sensor alarm streams).
 
-By running a streamlined agentic workflow, RoboAI identifies fault codes, diagnoses operational mistakes, and delivers precise, safety-compliant troubleshooting actions with direct citations to original equipment manufacturer (OEM) documentation.
+By running a streamlined agentic workflow, Chatbot identifies fault codes, diagnoses operational mistakes, and delivers precise, safety-compliant troubleshooting actions with direct citations to original equipment manufacturer (OEM) documentation.
 
 ---
 
@@ -42,7 +42,7 @@ Current generic chat tools either:
 - Cannot correlate raw log anomalies with vendor manuals.
 - Are too complex and heavyweight to deploy on-premises or on local engineering workstations.
 
-RoboAI solves this through a lightweight, grounded dual-stream RAG architecture.
+Chatbot solves this through a lightweight, grounded dual-stream RAG architecture.
 
 ---
 

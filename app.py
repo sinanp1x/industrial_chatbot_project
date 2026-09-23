@@ -3,12 +3,12 @@ import pandas as pd
 from core.vector_store import LocalVectorStore
 from core.doc_loader import DocumentLoader
 from core.log_parser import LogParser
-from core.openrouter_client import get_openrouter_client
+from core.hf_client import get_hf_client
 from agent.graph import build_industrial_graph
 from langchain_core.messages import HumanMessage, AIMessage
 
 # --- Configuration & Styling ---
-st.set_page_config(page_title="RoboAI | Industrial Copilot", page_icon="🏭", layout="wide")
+st.set_page_config(page_title="Chatbot | Industrial Copilot", page_icon="🏭", layout="wide")
 
 # Custom CSS for Industrial Theme
 st.markdown("""
@@ -53,13 +53,13 @@ if 'indexed_docs_meta' not in st.session_state:
 
 # --- Sidebar ---
 st.sidebar.title("⚙️ Configuration")
-api_key = st.sidebar.text_input("OpenRouter API Key", type="password")
+api_key = st.sidebar.text_input("Hugging Face API Token", type="password")
 if api_key:
     st.session_state.api_key = api_key
     
 model_selector = st.sidebar.selectbox(
     "Model Selector",
-    options=["anthropic/claude-3.5-sonnet", "openai/gpt-4o-mini", "meta-llama/llama-3.1-8b-instruct", "deepseek/deepseek-chat"]
+    options=["mistralai/Mistral-7B-Instruct-v0.2", "HuggingFaceH4/zephyr-7b-beta", "meta-llama/Meta-Llama-3-8B-Instruct"]
 )
 
 st.sidebar.divider()
@@ -126,7 +126,7 @@ if st.sidebar.button("Flush Active Log"):
 
 
 # --- Main Viewport ---
-st.title("🏭 RoboAI | Industrial Copilot & Equipment Diagnostics")
+st.title("🏭 Chatbot | Industrial Copilot & Equipment Diagnostics")
 
 tab1, tab2, tab3 = st.tabs(["💬 Diagnostic Chat", "📊 Log Anomaly Table", "📚 Manuals Knowledge Base"])
 
@@ -166,15 +166,15 @@ with tab1:
         st.session_state.chat_history.append(HumanMessage(content=query))
         
         # Check API key before proceeding
-        api_key_to_use = st.session_state.get('api_key', os.environ.get("OPENROUTER_API_KEY"))
+        api_key_to_use = st.session_state.get('api_key', os.environ.get("HUGGINGFACEHUB_API_TOKEN"))
         if not api_key_to_use:
              with st.chat_message("assistant"):
-                 st.error("Please provide an OpenRouter API Key in the sidebar or via the .env file.")
+                 st.error("Please provide a Hugging Face API Token in the sidebar or via the .env file.")
         else:
             with st.chat_message("assistant"):
                 with st.spinner("Processing..."):
                     try:
-                        llm_client = get_openrouter_client(model_name=model_selector, api_key=api_key_to_use)
+                        llm_client = get_hf_client(model_name=model_selector, hf_token=api_key_to_use)
                         graph = build_industrial_graph(st.session_state.vector_store, st.session_state.log_parser, llm_client)
                         
                         initial_state = {
