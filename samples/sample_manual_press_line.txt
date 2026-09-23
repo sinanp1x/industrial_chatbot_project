@@ -1,0 +1,32 @@
+ABB IRB6700 Press Line - Maintenance & Troubleshooting Manual
+
+## 1. Specifications
+- Model: IRB6700 Hydraulic Press
+- Normal Operating Pressure: 150 - 165 bar
+- Maximum Relief Pressure: 180 bar
+- Hydraulic Fluid: HLP46
+
+## 2. Safety Guidelines (LOTO)
+DANGER: Before performing any maintenance on the hydraulic relief valves or fluid lines, you MUST perform Lockout/Tagout (LOTO) on the main electrical panel (Breaker B-12).
+WARNING: Ensure system pressure is completely bled off using the manual bleed valve (V-90) before loosening any fittings. High-pressure hydraulic fluid can cause severe injury.
+
+## 3. Troubleshooting Guide
+
+### 3.1 Hydraulic Overpressure (Fault Code: ERR_HYD_OVERPRESS)
+Symptom: System pressure exceeds 180 bar and the emergency relief valve is tripped.
+Root Cause: This is typically caused by an obstruction in the main return manifold or a stuck proportional relief valve.
+Corrective Action Procedure:
+1. Immediately execute emergency stop and initiate LOTO on Breaker B-12.
+2. Verify system pressure using the mechanical gauge on the accumulator.
+3. Open the manual bleed valve (V-90) to relieve remaining pressure.
+4. Inspect the return manifold for debris or obstruction.
+5. If the manifold is clear, replace the proportional relief valve cartridge (Part # RV-400).
+6. Reset the safety PLC via the main HMI panel before restarting the press.
+
+### 3.2 Motor Overheat (Fault Code: ERR_MOTOR_OVERHEAT)
+Symptom: Main drive motor casing temperature exceeds 85°C.
+Root Cause: Insufficient cooling airflow or clogged cooling fins.
+Corrective Action Procedure:
+1. Power down the system.
+2. Inspect the rear cooling fan unit and clean out any accumulated dust from the motor fins.
+3. Allow the motor to cool below 50°C before attempting restart.

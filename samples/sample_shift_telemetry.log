@@ -1,0 +1,6 @@
+2026-09-23 14:10:00.100 [INFO] LINE_3_PRESS Sequence start initiated by operator.
+2026-09-23 14:12:30.450 [INFO] LINE_3_PRESS Operating normally. Hydraulic pressure 155 bar.
+2026-09-23 14:14:15.800 [WARN] LINE_3_PRESS Hydraulic pressure 170 bar nearing upper limit.
+2026-09-23 14:14:45.920 [WARN] LINE_3_PRESS Hydraulic pressure 178 bar exceeding nominal (165 bar).
+2026-09-23 14:15:10.589 [ERROR] LINE_3_PRESS Fault code ERR_HYD_OVERPRESS tripped emergency relief valve.
+2026-09-23 14:15:12.001 [FATAL] LINE_3_PRESS Automated shutdown initiated by safety PLC due to ERR_HYD_OVERPRESS.
