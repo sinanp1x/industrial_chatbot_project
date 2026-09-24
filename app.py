@@ -49,6 +49,11 @@ if 'parsed_logs' not in st.session_state:
     st.session_state.parsed_logs = None
 if 'indexed_docs_meta' not in st.session_state:
     st.session_state.indexed_docs_meta = []
+# Track uploaded file identities to detect changes across rerenders
+if '_last_log_key' not in st.session_state:
+    st.session_state._last_log_key = None
+if '_last_manuals_key' not in st.session_state:
+    st.session_state._last_manuals_key = None
 
 
 # --- Main Viewport ---
@@ -60,24 +65,49 @@ with st.expander("📂 Data Ingestion (Upload Manuals & Telemetry Logs)", expand
     
     with col1:
         st.subheader("📚 Knowledge Base")
-        uploaded_manuals = st.file_uploader("Upload Manuals & SOPs", type=["pdf", "txt"], accept_multiple_files=True)
-        if st.button("Re-index All") and uploaded_manuals:
-            with st.spinner("Extracting and Indexing..."):
-                st.session_state.vector_store.clear()
-                chunks = st.session_state.doc_loader.load_and_split(uploaded_manuals)
-                st.session_state.vector_store.add_documents(chunks)
-                st.session_state.indexed_docs_meta = [{"filename": file.name, "size": len(file.getvalue())} for file in uploaded_manuals]
-                st.success(f"Indexed {len(chunks)} chunks from {len(uploaded_manuals)} files.")
-                
+        uploaded_manuals = st.file_uploader(
+            "Upload Manuals & SOPs", type=["pdf", "txt"], accept_multiple_files=True
+        )
+
+        if uploaded_manuals:
+            # Auto-index when a new set of files is detected (identity = sorted name+size tuple)
+            manuals_key = tuple(sorted((f.name, len(f.getvalue())) for f in uploaded_manuals))
+            if manuals_key != st.session_state._last_manuals_key:
+                with st.spinner("Extracting and Indexing..."):
+                    st.session_state.vector_store.clear()
+                    # Capture metadata BEFORE load_and_split reads the files
+                    meta = [{"filename": f.name, "size": len(f.getvalue())} for f in uploaded_manuals]
+                    chunks = st.session_state.doc_loader.load_and_split(uploaded_manuals)
+                    st.session_state.vector_store.add_documents(chunks)
+                    st.session_state.indexed_docs_meta = meta
+                    st.session_state._last_manuals_key = manuals_key
+                st.success(f"✅ Auto-indexed {len(chunks)} chunks from {len(uploaded_manuals)} file(s).")
+
+            # Manual re-index button (force refresh)
+            if st.button("🔄 Force Re-index"):
+                with st.spinner("Re-indexing..."):
+                    st.session_state.vector_store.clear()
+                    meta = [{"filename": f.name, "size": len(f.getvalue())} for f in uploaded_manuals]
+                    chunks = st.session_state.doc_loader.load_and_split(uploaded_manuals)
+                    st.session_state.vector_store.add_documents(chunks)
+                    st.session_state.indexed_docs_meta = meta
+                    st.session_state._last_manuals_key = manuals_key
+                st.success(f"✅ Re-indexed {len(chunks)} chunks from {len(uploaded_manuals)} file(s).")
+
     with col2:
         st.subheader("⚡ Active Telemetry")
         uploaded_log = st.file_uploader("Upload Shift Logs / Fault Data", type=["txt", "log", "csv"])
         if uploaded_log:
-            if st.button("Parse Logs"):
-                content = uploaded_log.getvalue().decode("utf-8")
+            # Auto-parse when a new log file is detected (identity = name + size)
+            log_key = (uploaded_log.name, uploaded_log.size)
+            if log_key != st.session_state._last_log_key:
+                content = uploaded_log.getvalue().decode("utf-8", errors="replace")
                 st.session_state.active_logs_content = content
                 st.session_state.parsed_logs = st.session_state.log_parser.parse_log(content)
-                st.success("Logs parsed successfully.")
+                st.session_state._last_log_key = log_key
+                st.success(f"✅ Log '{uploaded_log.name}' parsed automatically.")
+            else:
+                st.info("Log already parsed. Upload a new file to refresh.")
                 
     with col3:
         st.subheader("🚀 Quick Start")
@@ -112,7 +142,11 @@ with st.expander("📂 Data Ingestion (Upload Manuals & Telemetry Logs)", expand
                     st.session_state.active_logs_content = log_content
                     st.session_state.parsed_logs = st.session_state.log_parser.parse_log(log_content)
                 
+                # Reset file identity trackers so real uploads are re-detected properly
+                st.session_state._last_log_key = None
+                st.session_state._last_manuals_key = None
                 st.success("Sample data loaded! You can now ask questions in the chat.")
+
 
 # --- Status Bar ---
 status_cols = st.columns(2)
