@@ -45,6 +45,8 @@ if 'log_parser' not in st.session_state:
     st.session_state.log_parser = LogParser()
 if 'active_logs_content' not in st.session_state:
     st.session_state.active_logs_content = None
+if 'active_log_filename' not in st.session_state:
+    st.session_state.active_log_filename = "log"
 if 'parsed_logs' not in st.session_state:
     st.session_state.parsed_logs = None
 if 'indexed_docs_meta' not in st.session_state:
@@ -103,7 +105,10 @@ with st.expander("📂 Data Ingestion (Upload Manuals & Telemetry Logs)", expand
             if log_key != st.session_state._last_log_key:
                 content = uploaded_log.getvalue().decode("utf-8", errors="replace")
                 st.session_state.active_logs_content = content
-                st.session_state.parsed_logs = st.session_state.log_parser.parse_log(content)
+                st.session_state.active_log_filename = uploaded_log.name
+                st.session_state.parsed_logs = st.session_state.log_parser.parse_log(
+                    content, source_filename=uploaded_log.name
+                )
                 st.session_state._last_log_key = log_key
                 st.success(f"✅ Log '{uploaded_log.name}' parsed automatically.")
             else:
@@ -139,9 +144,13 @@ with st.expander("📂 Data Ingestion (Upload Manuals & Telemetry Logs)", expand
                 if os.path.exists(log_path):
                     with open(log_path, "r", encoding="utf-8") as f:
                         log_content = f.read()
+                    sample_log_name = "sample_shift_telemetry.log"
                     st.session_state.active_logs_content = log_content
-                    st.session_state.parsed_logs = st.session_state.log_parser.parse_log(log_content)
-                
+                    st.session_state.active_log_filename = sample_log_name
+                    st.session_state.parsed_logs = st.session_state.log_parser.parse_log(
+                        log_content, source_filename=sample_log_name
+                    )
+
                 # Reset file identity trackers so real uploads are re-detected properly
                 st.session_state._last_log_key = None
                 st.session_state._last_manuals_key = None
@@ -181,7 +190,15 @@ with tab1:
                 if hasattr(msg, 'sources') and msg.sources:
                     with st.expander("📖 Cited Manual Excerpts"):
                         for source in msg.sources:
-                            st.markdown(f"- **{source['source']}** (Page {source['page']})")
+                            st.markdown(f"- **{source['source']}** — Page {source['page']}")
+                if hasattr(msg, 'log_citations') and msg.log_citations:
+                    with st.expander("📋 Referenced Log Lines"):
+                        for cite in msg.log_citations:
+                            badge = {"FATAL": "🔴", "ERROR": "🟠", "WARN": "🟡"}.get(cite["level"], "⚪")
+                            st.markdown(
+                                f"{badge} **{cite['source']}:L{cite['line']}** "
+                                f"— `{cite['timestamp']}` [{cite['level']}]"
+                            )
     
     # Pre-canned prompts
     col1, col2, col3, col4 = st.columns(4)
@@ -215,24 +232,45 @@ with tab1:
                         "query": query,
                         "chat_history": st.session_state.chat_history,
                         "active_logs": st.session_state.active_logs_content,
+                        "log_filename": st.session_state.get("active_log_filename", "log"),
                         "has_logs": st.session_state.active_logs_content is not None,
                         "has_manuals": len(st.session_state.indexed_docs_meta) > 0,
+                        # initialise citation lists so state is always well-formed
+                        "log_citations": [],
+                        "extracted_faults": [],
+                        "log_summary": "",
+                        "retrieved_manual_chunks": [],
+                        "sources": [],
                     }
                     
                     result_state = graph.invoke(initial_state)
                     final_response = result_state.get("final_response", "No response generated.")
                     sources = result_state.get("sources", [])
-                    
+                    log_citations = result_state.get("log_citations", [])
+
                     st.markdown(final_response)
-                    
-                    # Show sources
+
+                    # Show manual citations
                     if sources:
                         with st.expander("📖 Cited Manual Excerpts"):
-                            for source in sources:
-                                st.markdown(f"- **{source['source']}** (Page {source['page']})")
-                                
+                            for src in sources:
+                                st.markdown(f"- **{src['source']}** — Page {src['page']}")
+
+                    # Show log line citations
+                    if log_citations:
+                        with st.expander("📋 Referenced Log Lines"):
+                            for cite in log_citations:
+                                badge = {
+                                    "FATAL": "🔴", "ERROR": "🟠", "WARN": "🟡"
+                                }.get(cite["level"], "⚪")
+                                st.markdown(
+                                    f"{badge} **{cite['source']}:L{cite['line']}** "
+                                    f"— `{cite['timestamp']}` [{cite['level']}]"
+                                )
+
                     ai_msg = AIMessage(content=final_response)
                     ai_msg.sources = sources
+                    ai_msg.log_citations = log_citations
                     st.session_state.chat_history.append(ai_msg)
                     
                 except Exception as e:
