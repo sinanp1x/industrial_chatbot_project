@@ -5,7 +5,7 @@
 
 ## 1. Architectural Topology
 
-Chatbot follows a clean, modular multi-tier architecture designed for local execution and high-performance inference via OpenRouter.
+Chatbot follows a clean, modular multi-tier architecture designed for local execution and Hugging Face inference.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -80,10 +80,10 @@ Chatbot follows a clean, modular multi-tier architecture designed for local exec
   - **Low Resource Footprint**: 384-dimensional embeddings that load on standard CPU in < 1 second.
   - *Optional fallback*: Users can switch to OpenAI/OpenRouter embeddings if local model downloading is restricted.
 
-### 2.5 LLM Provider: **OpenRouter API**
-- **Why OpenRouter**:
-  - **Single Key, All Top Models**: Connects seamlessly using the standard OpenAI client SDK (`base_url="https://openrouter.ai/api/v1"`).
-  - **Model Flexibility**: Plant managers can select cost-effective fast models (e.g., `meta-llama/llama-3.1-8b-instruct`, `openai/gpt-4o-mini`) or elite reasoning models for complex machinery diagnostics (e.g., `anthropic/claude-3.5-sonnet`, `deepseek/deepseek-chat`).
+### 2.5 LLM Provider: **Hugging Face Transformers**
+- `core/hf_client.py` loads `mistralai/Mistral-7B-Instruct-v0.2` through a local Transformers pipeline.
+- 4-bit quantization and automatic device mapping are used for GPU environments such as a Colab T4.
+- The optional `HUGGINGFACEHUB_API_TOKEN` environment variable is used when the selected model requires authentication.
 
 ---
 

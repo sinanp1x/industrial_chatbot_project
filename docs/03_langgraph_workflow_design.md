@@ -33,15 +33,18 @@ class IndustrialAgentState(TypedDict):
     chat_history: List[BaseMessage]           # Prior conversation messages
     
     # Active Session Context
-    active_logs: Optional[str]                # Raw text of uploaded telemetry log
+    active_logs: Optional[str]                # Complete original telemetry text, retained losslessly
+    log_filename: str                         # Uploaded filename used for citations
     has_logs: bool                            # True if log file is loaded in session
     has_manuals: bool                         # True if FAISS vector index contains documents
     
     # Routing & Processing State
     intent: str                               # "doc_qa" | "log_troubleshoot" | "general"
     extracted_faults: List[str]               # Fault codes/errors identified in logs
+    log_summary: str                          # Derived anomaly summary; never replaces active_logs
     retrieved_manual_chunks: List[str]        # Relevant excerpts retrieved from FAISS
     sources: List[Dict[str, Any]]             # Document names and page numbers cited
+    log_citations: List[Dict[str, Any]]       # Source, line, timestamp, and severity for log events
     
     # Final Output
     final_response: str                       # Markdown-formatted diagnostic answer
@@ -103,26 +106,29 @@ graph TD
 - **Fallback**: If no logs are loaded, notify the user to upload active logs or paste error codes.
 
 ### 4.4 Node 4: `synthesize_response`
-- **Purpose**: Assemble the final grounded response using OpenRouter.
+- **Purpose**: Assemble the final grounded response using the configured Hugging Face chat client.
 - **Prompt Structure**:
   ```markdown
   You are Chatbot, an expert Industrial Diagnostics Assistant.
   Answer the user's query strictly based on the provided context.
   
-  [CURRENT OPERATING LOGS]
-  {extracted_faults / log_summary}
+  [ORIGINAL LOG DATA]
+  {active_logs}
+
+  [DERIVED LOG ANALYSIS]
+  {extracted_faults / log_summary / log_citations}
   
   [EQUIPMENT MANUALS / SOPS]
   {retrieved_manual_chunks}
   
   [INSTRUCTIONS]
   1. If a fault is diagnosed:
-     - Name the fault and timestamp from the logs.
+    - Name the fault and timestamp from the original logs.
      - State the root cause as explained in the equipment manuals.
      - Provide clear, numbered corrective actions.
      - Highlight critical safety procedures (e.g., LOTO, electrical hazard).
   2. If the answer is not in the manuals, explicitly state that it is not documented.
-  3. Always cite the manual name and page/section where available.
+  3. Cite log lines as `[filename:L<line_number>]` and manuals by filename and page/section where available.
   ```
 
 ---
@@ -180,5 +186,5 @@ def build_industrial_graph(vector_store, llm_client):
 |---|---|---|
 | **No Manuals Uploaded** | `retrieve_knowledge` | Skips vector search, returns clean notice advising user to upload PDF/TXT manuals. |
 | **No Logs Uploaded** | `analyze_logs` | Prompts user to drop a log file or paste recent telemetry into the chat. |
-| **OpenRouter API Error / Timeout** | `synthesize_response` | Catches `APIConnectionError` / `RateLimitError` and provides friendly offline diagnostic guidance. |
+| **Hugging Face model error / timeout** | `synthesize_response` | Catches model invocation errors and provides friendly diagnostic guidance. |
 | **Irrelevant / Out-of-Domain Query** | `synthesize_response` | Politely steers user back to industrial equipment, operations, and logs. |

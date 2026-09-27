@@ -5,7 +5,7 @@
 
 Chatbot bridges the gap between static industrial documentation (machinery operating manuals, SOPs, safety guides) and dynamic telemetry (PLC event logs, sensor dumps, error logs).
 
-It uses **Hugging Face** to provide powerful, grounded answers from your manuals and logs.
+It uses **Hugging Face** to provide grounded answers from your manuals and logs. Uploaded logs are retained in their original text form and sent to the answer-generation prompt alongside parsed anomaly summaries, so summaries never replace the source telemetry.
 
 ## 🚀 Running in Google Colab (Recommended)
 

@@ -50,13 +50,8 @@ Industrial applications require high clarity, immediate information hierarchy, a
 ## 3. Sidebar Specification
 
 ### 3.1 Global Configuration Panel
-- **API Key Input**: `st.sidebar.text_input("OpenRouter API Key", type="password")`
-  - Validates key structure. Persisted in `st.session_state`.
-- **Model Selector**:
-  - `anthropic/claude-3.5-sonnet` (Default for deep industrial diagnostics).
-  - `deepseek/deepseek-chat` (Ultra-fast, cost-effective).
-  - `openai/gpt-4o-mini` (General operational queries).
-  - `meta-llama/llama-3.1-70b-instruct` (Open-source powerhouse).
+- The current app initializes the local Hugging Face model through `core/hf_client.py`.
+- Model selection and authentication are configured through `get_hf_client()` and the optional `HUGGINGFACEHUB_API_TOKEN` environment variable, not a Streamlit sidebar API-key form.
 
 ### 3.2 Knowledge Base Ingestion Dock (Manuals & SOPs)
 - **Component**: `st.sidebar.file_uploader("Upload Manuals & SOPs", type=["pdf", "txt"], accept_multiple_files=True)`

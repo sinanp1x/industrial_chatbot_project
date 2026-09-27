@@ -25,7 +25,7 @@ Industrial environments require handling two fundamentally different data profil
                                                                ▼
                                                     ┌─────────────────────┐
                                                     │ Augmented Prompt to │
-                                                    │ OpenRouter API      │
+                                                    │ Hugging Face model  │
                                                     └─────────────────────┘
 ```
 
@@ -75,15 +75,18 @@ Industrial logs typically adhere to formats like:
 ```
 
 ### 3.2 Ingestion & Anomaly Detection Routine
-Unlike vectorizing the entire 50,000-line log into FAISS, the system uses a fast, deterministic log scanner:
+Unlike vectorizing the entire 50,000-line log into FAISS, the system uses a fast, deterministic log scanner while retaining the uploaded text exactly for final grounding:
 1. **Timestamp Normalizer**: Recognizes standard formats (`YYYY-MM-DD HH:MM:SS`, ISO-8601, UNIX epoch).
 2. **Severity Filter**: Categorizes lines into `[INFO]`, `[WARN]`, `[ERROR]`, `[FATAL]`, `[CRITICAL]`.
 3. **Fault Code Extractor**: Uses regex patterns:
    - `\b(?:ERR|FAULT|ALARM|CODE|E)[-_]?[0-9A-Z]{3,8}\b`
    - Numeric industrial codes (e.g., Siemens `F07800`, Fanuc `SRVO-062`).
-4. **Windowing & Deduping**:
-   - Groups recurring errors (e.g., "Fault ERR_HYD_OVERPRESS occurred 14 times between 14:15:00 and 14:15:30").
-   - Retains the most recent 30 critical lines to prevent prompt buffer blowout.
+4. **Derived analysis & citations**:
+   - Builds a concise summary from the most recent 40 WARN/ERROR/FATAL entries.
+   - Preserves every original input character in `raw_text` and every physical non-terminal line in `entries`.
+   - Keeps stable first-seen fault-code ordering and creates citations in the form `[filename:L<line_number>]`.
+
+The summary is an optimization for analysis only. It is never used as a replacement for the original log. The synthesis prompt receives both `active_logs` (the complete uploaded text) and the derived analysis, so normal lines and events outside the anomaly window remain available to the model.
 
 ---
 
@@ -98,8 +101,8 @@ When a user asks: *"Why did the press stop and what do we do?"*, the pipeline ex
 3. **Step 3 - FAISS Query**:
    - Retrieves top 3 chunks from `ABB_Press_Manual.pdf` describing hydraulic pressure thresholds and relief valve manual reset procedures.
 4. **Step 4 - Prompt Assembly**:
-   - Combines log context + retrieved manual section + operator question.
-5. **Step 5 - Grounded Synthesis via OpenRouter**:
+   - Combines the complete original log, derived analysis, retrieved manual section, and operator question.
+5. **Step 5 - Grounded Synthesis via Hugging Face**:
    - The LLM synthesizes an action plan referencing both the machine state and the vendor's documented procedure.
 
 ---
@@ -119,6 +122,9 @@ CRITICAL SAFETY DIRECTIVE:
 ==================================================
 ACTIVE MACHINE TELEMETRY & DETECTED ANOMALIES:
 {log_summary}
+
+ORIGINAL MACHINE TELEMETRY (complete uploaded text; source of truth):
+{active_logs}
 
 RELEVANT EXCERPTS FROM EQUIPMENT MANUALS:
 {manual_chunks}

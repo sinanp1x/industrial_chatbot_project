@@ -72,7 +72,7 @@ Chatbot solves this through a lightweight, grounded dual-stream RAG architecture
 ### 4.4 User Interface (UI)
 - **FR-4.1**: Interactive web dashboard built with **Streamlit**.
 - **FR-4.2**: Dedicated side panel / dock for:
-  - OpenRouter API configuration (API key entry, model selection dropdown).
+  - Hugging Face model configuration and optional token authentication.
   - Knowledge Base upload zone (PDF/TXT) with index status badge.
   - Active Log file upload zone (TXT/LOG) with quick error summary chip.
 - **FR-4.3**: Main viewport featuring:
@@ -86,7 +86,7 @@ Chatbot solves this through a lightweight, grounded dual-stream RAG architecture
 
 ### 5.1 Performance & Latency
 - Document indexing for a 50-page PDF manual must complete within **10 seconds** on standard CPU.
-- End-to-end question answering latency should be **under 4 seconds** using modern OpenRouter models (e.g., Claude 3.5 Sonnet, DeepSeek V3, GPT-4o-mini).
+- End-to-end question answering latency should be tracked for the configured local Hugging Face model and available GPU hardware.
 
 ### 5.2 Determinism & Hallucination Resistance
 - If the queried information is not found in the uploaded manuals, the model must explicitly state: *"Information not found in the uploaded equipment manuals. Please check physical documentation or contact OEM support."*

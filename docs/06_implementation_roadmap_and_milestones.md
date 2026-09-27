@@ -28,7 +28,7 @@ chatbot/
 │   ├── doc_loader.py                      # PDF/TXT loader and semantic chunker
 │   ├── vector_store.py                    # FAISS indexing, embedding, persistence
 │   ├── log_parser.py                      # Regex anomaly extractor, timestamp & severity parser
-│   └── openrouter_client.py               # OpenRouter ChatOpenAI wrapper
+│   └── hf_client.py                       # Local Hugging Face Transformers chat client
 │
 ├── samples/                               # Sample Industrial Test Datasets
 │   ├── sample_manual_press_line.txt       # Sample OEM manual (specs, errors, LOTO)
@@ -84,8 +84,8 @@ pydantic>=2.8.0
 ### Phase 1: Environment & Core Configuration
 - Create virtual environment (`python -m venv venv`).
 - Install dependencies via `pip install -r requirements.txt`.
-- Set up `core/openrouter_client.py` using `ChatOpenAI(base_url="https://openrouter.ai/api/v1", api_key=...)`.
-- Validate OpenRouter API connectivity with a smoke test.
+- Set up `core/hf_client.py` using the local Transformers pipeline and `ChatHuggingFace`.
+- Validate local model loading with a smoke test.
 
 ### Phase 2: Ingestion & FAISS Vector Store Layer (`core/`)
 - Implement `core/doc_loader.py`:
@@ -112,7 +112,7 @@ pydantic>=2.8.0
 
 ### Phase 5: Streamlit Industrial Dashboard (`app.py`)
 - Implement sidebar:
-  - OpenRouter API configuration.
+  - Hugging Face model configuration and optional `HUGGINGFACEHUB_API_TOKEN`.
   - Knowledge Base upload dock (PDF/TXT) with real-time indexing status.
   - Telemetry log upload dock with anomaly indicator badges.
 - Implement main tabs:
@@ -136,7 +136,7 @@ pydantic>=2.8.0
 
 | Step | Test Objective | Expected Result | Pass/Fail |
 |---|---|---|---|
-| **T-01** | OpenRouter Connectivity | Successfully returns test completion from selected model. | [ ] |
+| **T-01** | Hugging Face Model Loading | Successfully returns test completion from the configured local model. | [ ] |
 | **T-02** | PDF & TXT Ingestion | Correctly extracts text and builds FAISS index in `< 10s`. | [ ] |
 | **T-03** | Log Anomaly Parser | Correctly detects error lines and extracts error codes. | [ ] |
 | **T-04** | LangGraph Loop Execution | Executes cleanly without recursion, circular loops, or timeouts. | [ ] |
