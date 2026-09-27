@@ -1,0 +1,43 @@
+AUTOMATED TEXTILE MILL - MOTOR & MACHINERY INVENTORY
+Location: Sector 4, Spinning and Weaving Facility
+Document ID: INV-TEX-2026-01
+
+================================================================================
+1. SPINNING SECTION MACHINERY
+================================================================================
+
+[EQ-SPN-101] Ring Spinning Frame
+- Primary Motor: 75 kW AC Induction Motor (4-pole, 1450 RPM, IE4 Efficiency)
+- Drive System: Inverter-fed Variable Frequency Drive (VFD) for soft start and speed optimization.
+- Spindle Speed Range: 12,000 to 18,000 RPM
+- Lubrication Schedule: Automatic oil bath lubrication for main gearbox; high-speed bearing grease every 2,000 operational hours.
+- Safety Interlocks: Emergency stop pull-wire, spindle guard limit switch.
+
+[EQ-SPN-102] Heavy-Duty Carding Machine
+- Primary Motor: 30 kW Induction Motor with Star-Delta Starter
+- Auxiliary Motors: 3x 2.2 kW Servo Motors for feed roller and doffer synchronization.
+- Drive System: Toothed timing belt drive with mechanical overload clutch.
+- Lubrication Schedule: Weekly manual greasing of cylinder bearings using lithium-complex grease.
+- Safety Interlocks: Card cover magnetic safety lock (prevents opening until cylinder comes to a complete standstill).
+
+================================================================================
+2. WEAVING & LOOM SECTION MACHINERY
+================================================================================
+
+[EQ-WEV-201] High-Speed Air-Jet Loom
+- Primary Motor: 18.5 kW High-Torque Brake Motor
+- Drive System: Direct gear drive coupled with electromagnetic clutch-brake assembly.
+- Operating Parameters: Up to 850 insertions per minute; high thermal load profile due to rapid start-stop cycles.
+- Cooling System: Integrated forced-air cooling fan with dust filter.
+- Maintenance Note: Inspect brake disc gap bi-weekly; check compressor air-pressure sensor interlocks for the insertion nozzles.
+
+================================================================================
+3. FINISHING & COMPRESSOR UTILITIES
+================================================================================
+
+[EQ-UTL-301] Central Screw Air Compressor (Utility Support)
+- Primary Motor: 110 kW Heavy-Duty Synchronous Motor
+- Drive System: Direct drive via flexible coupling.
+- Operating Pressure: 7.5 bar continuous load.
+- Maintenance Schedule: Oil filter replacement every 1,000 hours; vibration analysis on motor bearings monthly.
+================================================================================

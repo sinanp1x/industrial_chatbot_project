@@ -1,0 +1,51 @@
+STANDARD OPERATING PROCEDURE: MOTOR & MACHINERY PREVENTIVE MAINTENANCE & TROUBLESHOOTING
+Industry: Automated Textile Manufacturing
+Document ID: SOP-MNT-2026-04 (Rev. 2)
+
+1. OBJECTIVE
+   To establish a systematic preventive maintenance (PM) schedule, correct working methods, and a structured fault-checker guide for all electric motors, drives, and driven mechanical loads to minimize downtime and ensure safety.
+
+2. SAFETY PRECAUTIONS & LOCKOUT/TAGOUT (LOTO)
+- Before performing any maintenance on motors (e.g., [EQ-SPN-101], [EQ-WEV-201]), technicians MUST execute plant LOTO protocols.
+- Verify zero energy state using a calibrated multimeter across all phases and to ground before touching terminal boxes.
+- Ensure all rotating shafts have come to a complete physical standstill and kinetic energy has fully dissipated.
+
+3. ROUTINE INSPECTION CHECKLISTS
+3.1. Daily Checks (Operators & Shift Technicians)
+- Monitor motor casing temperature using an infrared thermometer (Threshold: < 75°C under normal load).
+- Listen for abnormal humming, bearing squeal, or mechanical vibration.
+- Check cooling fins and air intake grilles for accumulation of cotton lint and dust; clear immediately.
+
+3.2. Weekly Checks
+- Inspect belt tensions on carding and spinning frames. Adjust tensioners to prevent slip without overloading motor shafts.
+- Check VFD display panels for fault history codes, harmonic distortion warnings, or overcurrent spikes.
+- Inspect flexible couplings and alignment indicators for signs of wear or angular misalignment.
+
+3.3. Monthly Checks (Electrical & Mechanical Team)
+- Insulation Resistance (Megger) Testing: Measure winding-to-ground resistance. Minimum acceptable value is $2\ \text{M}\Omega$ at $500\text{V DC}$.
+- Vibration Analysis: Measure velocity and acceleration metrics on motor drive-end and non-drive-end bearings.
+- Thermographic Scanning: Perform thermal imaging of electrical control panels and motor terminal connections.
+
+4. CORRECT WORKING METHODS (BEST PRACTICES)
+- Motor Alignment Method: When reinstalling a motor, use a laser alignment tool to keep angular misalignment below $0.05^\circ$ and parallel offset below $0.05\text{ mm}$ to prevent premature bearing failure.
+- Correct Greasing Method: Clean the zerk fitting before grease injection. Apply measured shots using a calibrated grease gun (calculate exact grease quantity using formula: $G = 0.005 \times D \times B$, where $D$ is outer diameter and $B$ is bearing width). Rotate the shaft slowly during greasing to distribute evenly.
+
+5. FAULT-CHECKER & TROUBLESHOOTING GUIDE
+
+5.1. Fault Code: Motor Overheating (Casing Temp > 85°C)
+- Step 1: Check current draw on all three phases using a clamp meter. Compare against the rated full-load amps ($FLA$) on the nameplate.
+- Step 2: If current is balanced and below $FLA$, inspect cooling fins for lint blockage or ambient ventilation failure.
+- Step 3: If current is unbalanced or high, check for mechanical binding in the driven load or voltage unbalance from the supply.
+
+5.2. Fault Code: Excessive Vibration & Bearing Noise
+- Step 1: Decouple the motor from the load and run it independently.
+- Step 2: If vibration persists, inspect motor mounting bolts, baseplate rigidity, and bearing condition. Replace bearings if radial play exceeds tolerance.
+- Step 3: If vibration disappears when decoupled, check for shaft misalignment, unbalance in the pulley/gear, or coupling wear.
+
+5.3. Fault Code: VFD Overcurrent Trip (OC Fault)
+- Step 1: Inspect output cables for short circuits or insulation breakdown to ground.
+- Step 2: Check mechanical load for sudden jams, blockages, or over-torque conditions.
+- Step 3: Review VFD acceleration/deceleration ramp times; increase ramp time if parameters are too aggressive for high-inertia loads like large spinning frames.
+
+6. ESCALATION & RECORD KEEPING
+- Log all maintenance activities, fault codes, readings, and component replacements into the Computerized Maintenance Management System (CMMS) immediately after task completion.

@@ -1,0 +1,33 @@
+SCADA / ELECTRICAL SUBSTATION - POWER QUALITY & ALARM LOG
+Facility: Automated Textile Mill - Sector 4 (Main Substation 33kV/11kV)
+Date / Timestamp: October 24, 2026 | Shift: C (22:00 - 06:00)
+Log File ID: LOG-SUB-2026-1024-C
+
+================================================================================
+1. SUBSTATION & GRID STATUS SUMMARY
+================================================================================
+- Incoming Grid Supply: Feed Line 2 (Active) | Voltage: 33.2 kV | Frequency: 50.02 Hz
+- Plant Power Factor (PF): 0.96 Lagging (Automatic Capacitor Bank Active)
+- Total Active Power Demand: 2,450 kW
+- Substation Health Status: NORMAL (1 Minor Power Quality Event Logged)
+
+================================================================================
+2. REAL-TIME ELECTRICAL EVENT & ALARM LOG (CHRONOLOGICAL ORDER)
+================================================================================
+
+[22:00:00] [INFO] [SUB-PLC-02] Shift C electrical monitoring initialized. Automatic Power Factor Correction (APFC) panel online.
+[23:15:10] [WARNING] [SUB-TRF-01] Main Transformer 33/11kV Oil Temperature reached 68°C (Warning threshold: 65°C due to high ambient load). Stage 1 cooling fans forced ON.
+[01:10:25] [EVENT] [BUS-BAR-11K] Voltage Sag Detected on Phase B: Voltage dropped to 385V (Nominal: 415V) for duration of 180ms. Origin: External grid switching.
+[01:10:26] [INFO] [VFD-BUS-PROT] 14 VFD units across weaving lines experienced momentary DC-bus undervoltage ride-through. No production trips recorded.
+[02:45:00] [INFO] [APFC-UNIT-03] Capacitor bank step 4 switched OFF due to reactive power stabilization.
+[04:12:50] [WARNING] [GEN-SET-01] Emergency Diesel Generator weekly self-test initiated. 
+[04:13:30] [INFO] [GEN-SET-01] Engine RPM stable at 1500 RPM, Voltage output 415V AC, Frequency 50.0 Hz. Self-test passed successfully after 10-minute run. Returned to standby mode.
+[05:30:15] [INFO] [SUB-MTR-09] Daily energy consumption logged: Total kWh used during previous 24 hours = 58,800 kWh. Peak demand recorded at 2,710 kW during Shift A.
+
+================================================================================
+3. ELECTRICAL DIAGNOSTIC SUMMARY FOR SHIFT C
+================================================================================
+- Total Power Interruptions: 0
+- Grid Stability Index: 99.4%
+- Transformer Thermal Status Stabilized: Oil temperature reduced to 62°C following forced cooling.
+- Shift Electrician Sign-off: M. Sundaram (ID: EL-302)

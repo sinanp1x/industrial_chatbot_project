@@ -1,0 +1,37 @@
+SCADA / PLC CENTRAL MONITORING SYSTEM - EVENT & FAULT LOG
+Facility: Automated Textile Mill - Sector 4 (Spinning & Weaving)
+Date / Timestamp: October 24, 2026 | Shift: B (14:00 - 22:00)
+Log File ID: LOG-PLC-2026-1024-B
+
+================================================================================
+1. SYSTEM STATUS SUMMARY
+================================================================================
+- Total Active Nodes: 42 PLC Controllers, 128 VFD Drives
+- System Health Status: WARNING (1 Active Critical Fault, 2 Active Warnings)
+- Network Communication: Stable (ProfiNet IO - 100ms cycle time)
+
+================================================================================
+2. REAL-TIME EVENT & FAULT LOG (CHRONOLOGICAL ORDER)
+================================================================================
+
+[14:02:15] [INFO] [PLC-SYS-01] Shift B controller handoff completed successfully. All automated lines initialized.
+[14:15:30] [INFO] [EQ-SPN-101] Ring Spinning Frame started via VFD remote control. Ramp-up time: 15.2s. Current draw stable at 68 A.
+[15:45.10] [WARNING] [EQ-UTL-301] Central Screw Air Compressor motor winding temperature reached 78°C. (Warning Threshold: 75°C). Cooling fan stage 2 activated.
+[16:20:05] [INFO] [EQ-WEV-201] High-Speed Air-Jet Loom scheduled maintenance lock lifted. Resuming production weave cycle.
+[17:10:44] [CRITICAL FAULT] [EQ-SPN-102] Heavy-Duty Carding Machine - Drive Overcurrent Trip!
+  - Diagnostic Data: VFD Fault Code F001 (OC - Overcurrent during steady run).
+  - Measured Current: Phase A = 48.2A, Phase B = 51.0A, Phase C = 49.5A (Rated FLA: 45A).
+  - Action Taken: Automatic emergency coast-to-stop triggered by safety PLC. Interlock locked card cover.
+  - Maintenance Dispatch: Technician assigned (ID: TECH-804).
+[17:12:00] [WARNING] [EQ-SPN-102] Card cover interlock status: LOCKED. Waiting for cylinder rotational speed to drop below 5 RPM before release.
+[17:25:30] [INFO] [EQ-SPN-102] Maintenance inspection in progress. Initial finding: Cotton fiber jam in the doffer comb assembly causing mechanical overload.
+[17:50,12] [INFO] [EQ-SPN-102] Mechanical jam cleared, manual rotation check passed, VFD fault history reset by technician TECH-804.
+[18:00:00] [INFO] [EQ-SPN-102] System re-energized and passed pre-start check. Line returned to normal operation.
+[18:30:22] [WARNING] [EQ-SPN-101] Ring Spinning Frame - Bearing Vibration Warning: Drive-end velocity reached $4.2\text{ mm/s}$ RMS (Warning limit: $4.0\text{ mm/s}$). Scheduled for grease replenishment during next shift change.
+
+================================================================================
+3. SYSTEM DIAGNOSTIC SUMMARY FOR SHIFT B
+================================================================================
+- Total Operational Hours Logged: 8.0 hrs per primary unit
+- Total Fault Events: 1 Critical (Resolved), 2 Warnings (1 Active monitoring)
+- Operator Acknowledgements: Completed by Shift Lead R. Sharma
