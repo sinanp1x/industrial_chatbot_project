@@ -1,4 +1,5 @@
 import os
+import hashlib
 import streamlit as st
 import pandas as pd
 from core.vector_store import LocalVectorStore
@@ -58,6 +59,12 @@ if '_last_manuals_key' not in st.session_state:
     st.session_state._last_manuals_key = None
 
 
+def _file_fingerprint(uploaded_file):
+    """Return a stable identity that changes when uploaded content changes."""
+    content = uploaded_file.getvalue()
+    return uploaded_file.name, hashlib.sha256(content).hexdigest()
+
+
 # --- Main Viewport ---
 st.title("🏭 Chatbot | Industrial Copilot & Equipment Diagnostics")
 
@@ -73,7 +80,7 @@ with st.expander("📂 Data Ingestion (Upload Manuals & Telemetry Logs)", expand
 
         if uploaded_manuals:
             # Auto-index when a new set of files is detected (identity = sorted name+size tuple)
-            manuals_key = tuple(sorted((f.name, len(f.getvalue())) for f in uploaded_manuals))
+            manuals_key = tuple(sorted(_file_fingerprint(f) for f in uploaded_manuals))
             if manuals_key != st.session_state._last_manuals_key:
                 with st.spinner("Extracting and Indexing..."):
                     st.session_state.vector_store.clear()
@@ -95,13 +102,17 @@ with st.expander("📂 Data Ingestion (Upload Manuals & Telemetry Logs)", expand
                     st.session_state.indexed_docs_meta = meta
                     st.session_state._last_manuals_key = manuals_key
                 st.success(f"✅ Re-indexed {len(chunks)} chunks from {len(uploaded_manuals)} file(s).")
+        elif st.session_state._last_manuals_key is not None:
+            st.session_state.vector_store.clear()
+            st.session_state.indexed_docs_meta = []
+            st.session_state._last_manuals_key = None
 
     with col2:
         st.subheader("⚡ Active Telemetry")
         uploaded_log = st.file_uploader("Upload Shift Logs / Fault Data", type=["txt", "log", "csv"])
         if uploaded_log:
             # Auto-parse when a new log file is detected (identity = name + size)
-            log_key = (uploaded_log.name, uploaded_log.size)
+            log_key = _file_fingerprint(uploaded_log)
             if log_key != st.session_state._last_log_key:
                 content = uploaded_log.getvalue().decode("utf-8", errors="replace")
                 st.session_state.active_logs_content = content
@@ -113,6 +124,11 @@ with st.expander("📂 Data Ingestion (Upload Manuals & Telemetry Logs)", expand
                 st.success(f"✅ Log '{uploaded_log.name}' parsed automatically.")
             else:
                 st.info("Log already parsed. Upload a new file to refresh.")
+        elif st.session_state._last_log_key is not None:
+            st.session_state.active_logs_content = None
+            st.session_state.active_log_filename = "log"
+            st.session_state.parsed_logs = None
+            st.session_state._last_log_key = None
                 
     with col3:
         st.subheader("🚀 Quick Start")
@@ -291,7 +307,8 @@ with tab2:
         if anomalies:
             df = pd.DataFrame(anomalies)
             # Reorder/rename columns for display
-            df = df[["timestamp", "level", "subsystem", "message", "fault_codes"]]
+            columns = ["timestamp", "level", "message", "fault_codes"]
+            df = df[columns]
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No critical anomalies found in logs.")

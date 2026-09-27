@@ -226,6 +226,7 @@ def synthesize_response_node(state: IndustrialAgentState, llm_client) -> Industr
     query            = state.get("query", "")
     intent           = state.get("intent", "general")
     log_summary      = state.get("log_summary", "No logs provided.")
+    original_log     = state.get("active_logs") or "No original log data available."
     manual_chunks    = state.get("retrieved_manual_chunks", [])
     extracted_faults = state.get("extracted_faults", [])
     log_citations    = state.get("log_citations", [])
@@ -244,6 +245,17 @@ def synthesize_response_node(state: IndustrialAgentState, llm_client) -> Industr
         "Detected fault codes: " + ", ".join(extracted_faults)
         if extracted_faults
         else ""
+    )
+
+    log_citations_text = (
+        "\n".join(
+            f"[{citation.get('source', 'log')}:L{citation.get('line', '?')}] "
+            f"[{citation.get('level', 'UNKNOWN')}] "
+            f"{citation.get('timestamp', '?')}"
+            for citation in log_citations
+        )
+        if log_citations
+        else "No parsed log citations available."
     )
 
     history_text  = _format_chat_history(chat_history)
@@ -271,7 +283,7 @@ voltages, or procedures that are not in the supplied context.
 • If the required information is absent from the context, say clearly: \
 "Specific information not found in the indexed materials. Contact OEM support or engineering."
 • When referencing a log line, cite it as [filename:L<line_number>] — exactly as tagged in the \
-LOG ANOMALIES block below.
+LOG CITATIONS or derived analysis blocks below.
 • When referencing a manual, cite it as [filename, page N].
 • SAFETY FIRST: If an action involves Lockout/Tagout (LOTO), arc flash, or high-voltage hazard, \
 state it in bold at the very top of your answer before anything else.
@@ -280,9 +292,15 @@ gets full structured analysis.
 {context_notes}{history_block}
 === CONTEXT START ===
 
-LOG DATA:
+ORIGINAL LOG DATA (use this complete, lossless text as the source of truth):
+{original_log}
+
+DERIVED LOG ANALYSIS (summaries and detected faults; do not treat this as a replacement for the original):
 {log_summary}
 {faults_text}
+
+LOG CITATIONS:
+{log_citations_text}
 
 MANUAL EXCERPTS:
 {manual_text}

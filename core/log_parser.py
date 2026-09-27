@@ -55,6 +55,7 @@ class LogParser:
 
     # Log level tokens to strip from message display
     _LEVEL_STRIP_RE = re.compile(r"\[(INFO|WARN|WARNING|ERROR|FATAL|CRITICAL)\]", re.IGNORECASE)
+    _LEVEL_NAMES = {"INFO", "WARN", "WARNING", "ERROR", "FATAL", "CRITICAL"}
 
     def parse_log(self, log_content: str, source_filename: str = "log") -> Dict:
         """
@@ -71,16 +72,16 @@ class LogParser:
             unique_faults  - deduplicated list of detected fault codes
             summary_text   - human-readable text block for the LLM prompt
             log_citations  - list of citation dicts {"source", "line", "timestamp", "level"}
+            raw_text       - original log content, preserved exactly
         """
         lines = log_content.splitlines()
         parsed_entries: List[Dict] = []
-        extracted_faults: set = set()
+        extracted_faults: Dict[str, None] = {}
         counts = {"INFO": 0, "WARN": 0, "ERROR": 0, "FATAL": 0}
 
         for line_no, raw_line in enumerate(lines, start=1):
             line = raw_line.strip()
-            if not line:
-                continue
+            is_blank = not line
 
             entry: Dict = {
                 "line_number": line_no,
@@ -90,7 +91,14 @@ class LogParser:
                 "message": line,
                 "fault_codes": [],
                 "source": source_filename,
+                "is_blank": is_blank,
             }
+
+            # Keep blank physical lines available for exact line references,
+            # while excluding them from event counts and anomaly detection.
+            if is_blank:
+                parsed_entries.append(entry)
+                continue
 
             # --- Timestamp detection ---
             for ts_pat in self._TS_PATTERNS:
@@ -110,10 +118,12 @@ class LogParser:
             counts[detected_level] = counts.get(detected_level, 0) + 1
 
             # --- Fault code extraction ---
-            faults = self._FAULT_CODE_RE.findall(line)
+            faults = [fault for fault in self._FAULT_CODE_RE.findall(line)
+                      if fault.upper() not in self._LEVEL_NAMES]
             if faults:
                 entry["fault_codes"] = faults
-                extracted_faults.update(faults)
+                for fault in faults:
+                    extracted_faults.setdefault(fault, None)
 
             parsed_entries.append(entry)
 
@@ -140,6 +150,7 @@ class LogParser:
             "unique_faults": list(extracted_faults),
             "summary_text": self._build_summary(recent_anomalies, source_filename),
             "log_citations": log_citations,
+            "raw_text": log_content,
         }
 
     # ------------------------------------------------------------------

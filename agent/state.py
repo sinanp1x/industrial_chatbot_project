@@ -7,7 +7,7 @@ class IndustrialAgentState(TypedDict):
     chat_history: List[BaseMessage]           # Prior conversation messages
 
     # Active Session Context
-    active_logs: Optional[str]                # Raw text of uploaded telemetry log
+    active_logs: Optional[str]                # Raw text of uploaded telemetry log, retained for LLM grounding
     log_filename: str                         # Filename of the uploaded log (for citations)
     has_logs: bool                            # True if log file is loaded in session
     has_manuals: bool                         # True if FAISS vector index contains documents
